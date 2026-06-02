@@ -8,6 +8,8 @@ an Android tablet and keyboard, but not a full laptop. The goal is a repeatable
 one-command workspace for writing documents, browsing, editing files, and using
 basic Linux tools.
 
+Chinese documentation: [README.zh-CN.md](README.zh-CN.md)
+
 ## Why This Exists
 
 Termux:X11 is powerful, but input behavior can be unstable on some tablets when
@@ -40,6 +42,8 @@ The current flow is:
 - Several GB of free storage for Debian, XFCE, LibreOffice, and browser packages.
 
 ## Install
+
+Full guide: [Install](docs/INSTALL.md)
 
 From a PC with ADB:
 
@@ -93,10 +97,12 @@ office-vnc
 
 ## Documentation
 
+- [Install](docs/INSTALL.md)
 - [Architecture](docs/ARCHITECTURE.md)
 - [Troubleshooting](docs/TROUBLESHOOTING.md)
 - [Device compatibility](docs/DEVICE_COMPATIBILITY.md)
 - [Maintainer workflow](docs/MAINTAINER_WORKFLOW.md)
+- [Roadmap](docs/ROADMAP.md)
 
 ## Project Status
 
@@ -125,6 +131,18 @@ Review the script before running it on a device that contains sensitive data.
 Before a public release, maintainers should run the checks in
 [Maintainer workflow](docs/MAINTAINER_WORKFLOW.md): Bash syntax, PowerShell
 syntax, shell-script line endings, and common accidental secret patterns.
+
+Quick local check:
+
+```sh
+bash scripts/check-repo.sh
+```
+
+On Windows:
+
+```powershell
+.\scripts\check-repo.ps1
+```
 
 ## Related Projects
 
