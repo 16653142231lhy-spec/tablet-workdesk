@@ -1,0 +1,39 @@
+name: Bug report
+description: Report a reproducible Tablet Workdesk problem
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What went wrong?
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Android version, device model, RAM, Termux source, client app.
+      placeholder: Android 14, tablet model, 4 GB RAM, Termux from F-Droid, AVNC
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Commands and actions that trigger the issue.
+      placeholder: |
+        1. Run office
+        2. Open AVNC
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Relevant output from office-status or ~/tablet-workdesk/logs.
+      render: text
+    validations:
+      required: false

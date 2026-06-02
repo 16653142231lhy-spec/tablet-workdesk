@@ -1,0 +1,43 @@
+name: Device report
+description: Share a device compatibility result
+title: "[Device]: "
+labels: ["device-report"]
+body:
+  - type: input
+    id: device
+    attributes:
+      label: Device
+      placeholder: Tablet model
+    validations:
+      required: true
+  - type: input
+    id: android
+    attributes:
+      label: Android version
+    validations:
+      required: true
+  - type: input
+    id: ram
+    attributes:
+      label: RAM and storage
+      placeholder: 4 GB RAM, 20 GB free
+    validations:
+      required: true
+  - type: dropdown
+    id: client
+    attributes:
+      label: Client path
+      options:
+        - AVNC
+        - Chrome/noVNC
+        - Direct VNC
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: Result
+      description: What worked, what failed, and any settings you changed.
+    validations:
+      required: true

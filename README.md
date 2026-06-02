@@ -91,6 +91,19 @@ office-vnc
 - `scripts/switch-office-to-avnc.sh` changes the main `office` command to AVNC.
 - `scripts/tune-office-light.sh` applies lower-resource VNC/XFCE settings.
 
+## Documentation
+
+- [Architecture](docs/ARCHITECTURE.md)
+- [Troubleshooting](docs/TROUBLESHOOTING.md)
+- [Device compatibility](docs/DEVICE_COMPATIBILITY.md)
+- [Maintainer workflow](docs/MAINTAINER_WORKFLOW.md)
+
+## Project Status
+
+This repository is in its first public release. The current focus is making the
+installer reproducible, documenting tested devices, and improving low-RAM
+profiles. See the open issues for the active roadmap.
+
 ## Security Notes
 
 The default VNC mode uses no password because it binds to localhost only. Do not
@@ -106,6 +119,12 @@ Review the script before running it on a device that contains sensitive data.
 - Add a minimal install profile without LibreOffice.
 - Add screenshots and a short troubleshooting guide.
 - Add shell lint checks and safer update rollback.
+
+## Maintenance
+
+Before a public release, maintainers should run the checks in
+[Maintainer workflow](docs/MAINTAINER_WORKFLOW.md): Bash syntax, PowerShell
+syntax, shell-script line endings, and common accidental secret patterns.
 
 ## Related Projects
 
