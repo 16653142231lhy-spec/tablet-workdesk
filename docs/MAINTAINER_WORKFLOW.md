@@ -16,10 +16,23 @@ On Windows PowerShell:
 .\scripts\check-repo.ps1
 ```
 
+Build release assets:
+
+```sh
+bash scripts/build-release-assets.sh
+```
+
+or:
+
+```powershell
+.\scripts\build-release-assets.ps1
+```
+
 ## Release Checklist
 
 - Review installer changes manually.
 - Run syntax checks.
+- Build release assets and upload `dist/tw.sh` plus `dist/tw.sh.sha256`.
 - Confirm README install flow still matches script behavior.
 - Update troubleshooting docs if a failure mode changed.
 - Create or update a compatibility note for any tested device.
@@ -46,3 +59,4 @@ Keep these current so users and reviewers can understand the project state:
 - Device compatibility table.
 - Security notes.
 - Release tags.
+- Release assets.

@@ -39,6 +39,12 @@ Then run inside Termux:
 bash /sdcard/Download/tw.sh
 ```
 
+For a smaller install without LibreOffice and Firefox ESR:
+
+```sh
+TABLET_WORKDESK_PROFILE=minimal bash /sdcard/Download/tw.sh
+```
+
 ## Path B: Manual Copy
 
 Copy this file to the Android tablet:
@@ -85,6 +91,47 @@ Use direct VNC fallback:
 office-vnc
 ```
 
+Uninstall Tablet Workdesk command wrappers and app state:
+
+```sh
+office-uninstall
+```
+
+Also offer to remove the Debian proot rootfs:
+
+```sh
+office-uninstall --remove-rootfs
+```
+
+The rootfs removal path asks you to type a confirmation string before running
+`proot-distro remove debian`.
+
+## Install Profiles
+
+| Profile | Packages |
+| --- | --- |
+| `standard` | XFCE desktop, VNC/noVNC, fonts, input method, LibreOffice, Firefox ESR, file tools |
+| `minimal` | XFCE desktop, VNC/noVNC, fonts, input method, file tools |
+
+The default is `standard`.
+
+## Component Pins
+
+The installer defaults to reviewed upstream tags:
+
+| Component | Default ref |
+| --- | --- |
+| noVNC | `v1.7.0` |
+| websockify | `v0.13.0` |
+
+Advanced users can override them:
+
+```sh
+TABLET_WORKDESK_NOVNC_REF=v1.7.0 \
+TABLET_WORKDESK_WEBSOCKIFY_REF=v0.13.0 \
+bash /sdcard/Download/tw.sh
+```
+
 ## Network Ports
 
 Default ports are local-only:
@@ -104,6 +151,6 @@ commands.
 
 ## Uninstall
 
-The project does not yet ship a full uninstall command. For now, remove the
-created command wrappers and Debian proot rootfs manually only if you understand
-the Termux paths involved. A safer uninstall command is tracked in the roadmap.
+Use `office-uninstall` to remove command wrappers and app state. Use
+`office-uninstall --remove-rootfs` only if you also want to remove the Debian
+proot rootfs.

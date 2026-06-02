@@ -34,6 +34,7 @@ if ($bash) {
     & $bash.Path -n scripts/switch-office-to-avnc.sh
     & $bash.Path -n scripts/tune-office-light.sh
     & $bash.Path -n scripts/check-repo.sh
+    & $bash.Path -n scripts/build-release-assets.sh
 } else {
     Write-Warning "bash not found; skipped Bash syntax checks"
 }
@@ -69,6 +70,17 @@ $files = foreach ($path in $paths) {
 }
 $files = $files | Where-Object {
     $_.FullName -notmatch 'scripts[\\/]+check-repo\.(sh|ps1)$'
+}
+$tokens = $null
+$errors = $null
+[System.Management.Automation.Language.Parser]::ParseFile(
+    (Join-Path $root "scripts\build-release-assets.ps1"),
+    [ref]$tokens,
+    [ref]$errors
+) > $null
+if ($errors.Count) {
+    $errors | Format-List *
+    exit 1
 }
 foreach ($pattern in $patterns) {
     $matches = $files | Select-String -Pattern $pattern -ErrorAction SilentlyContinue

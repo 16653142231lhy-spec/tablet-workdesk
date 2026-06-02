@@ -19,6 +19,7 @@ AVNC. It gives them a repeatable default shape for low-cost Android tablets.
 - `office-vnc` starts only the direct VNC path.
 - `office-stop` stops VNC/noVNC and desktop processes.
 - `office-status` prints process and port status.
+- `office-uninstall` removes command wrappers and app state.
 - `debian` opens the Debian proot shell.
 - `bakoffice` creates a Debian rootfs backup archive.
 - `upoffice` updates packages and noVNC/websockify sources.
@@ -35,8 +36,17 @@ Termux:X11 can render a native desktop, but on some tablets input is less
 reliable when routed through Termux:X11. VNC/noVNC lets Android or the browser
 own input first, which is often more stable with Bluetooth keyboards and mice.
 
+## Install Profiles
+
+The installer supports two profiles:
+
+- `standard`: XFCE desktop plus LibreOffice and Firefox ESR.
+- `minimal`: XFCE desktop without LibreOffice or Firefox ESR.
+
+Both profiles keep the same local VNC/noVNC architecture.
+
 ## Update Boundaries
 
-The installer currently resets noVNC and websockify to the latest upstream HEAD
-when updating. Future releases should add pinned version profiles for better
-reproducibility.
+The installer pins noVNC and websockify to reviewed upstream refs by default.
+`upoffice` updates packages and resets noVNC/websockify to the configured refs,
+not arbitrary HEAD.

@@ -10,6 +10,7 @@ bash -n scripts/finalize-office-lite-avnc.sh
 bash -n scripts/switch-office-to-avnc.sh
 bash -n scripts/tune-office-light.sh
 bash -n scripts/check-repo.sh
+bash -n scripts/build-release-assets.sh
 
 echo "== Shell line endings =="
 if grep -RIl $'\r' scripts/*.sh; then

@@ -1,5 +1,6 @@
 output/
 logs/
+dist/
 *.log
 *.tmp
 *.bak

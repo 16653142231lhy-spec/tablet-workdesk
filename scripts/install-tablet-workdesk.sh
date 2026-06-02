@@ -5,17 +5,36 @@ log() {
   printf '\n[tablet-workdesk] %s\n' "$*"
 }
 
+TABLET_WORKDESK_VERSION="0.2.0"
+TABLET_WORKDESK_PROFILE="${TABLET_WORKDESK_PROFILE:-standard}"
+TABLET_WORKDESK_NOVNC_REF="${TABLET_WORKDESK_NOVNC_REF:-v1.7.0}"
+TABLET_WORKDESK_WEBSOCKIFY_REF="${TABLET_WORKDESK_WEBSOCKIFY_REF:-v0.13.0}"
+
 APP_ROOT="$HOME/tablet-workdesk"
 LOG_DIR="$APP_ROOT/logs"
 SHARE_DIR="$HOME/linux-share"
 DEBIAN_NAME="debian"
 DOWNLOAD_DIR="/sdcard/Download"
 
+case "$TABLET_WORKDESK_PROFILE" in
+  standard|minimal) ;;
+  *)
+    echo "Unsupported TABLET_WORKDESK_PROFILE: $TABLET_WORKDESK_PROFILE" >&2
+    echo "Supported profiles: standard, minimal" >&2
+    exit 2
+    ;;
+esac
+
 export DEBIAN_FRONTEND=noninteractive
 export APT_LISTCHANGES_FRONTEND=none
 
 mkdir -p "$APP_ROOT" "$LOG_DIR" "$SHARE_DIR"
 chmod 700 "$SHARE_DIR"
+
+log "Version: $TABLET_WORKDESK_VERSION"
+log "Profile: $TABLET_WORKDESK_PROFILE"
+log "noVNC ref: $TABLET_WORKDESK_NOVNC_REF"
+log "websockify ref: $TABLET_WORKDESK_WEBSOCKIFY_REF"
 
 log "Install Termux packages"
 pkg update -y
@@ -37,30 +56,52 @@ set -euo pipefail
 export DEBIAN_FRONTEND=noninteractive
 export APT_LISTCHANGES_FRONTEND=none
 
+PROFILE="${TABLET_WORKDESK_PROFILE:-standard}"
+NOVNC_REF="${TABLET_WORKDESK_NOVNC_REF:-v1.7.0}"
+WEBSOCKIFY_REF="${TABLET_WORKDESK_WEBSOCKIFY_REF:-v0.13.0}"
+
 clone_or_update() {
   local url="$1"
   local dir="$2"
+  local ref="$3"
 
   if [ -d "$dir/.git" ]; then
-    git -C "$dir" fetch --depth 1 origin
+    git -C "$dir" fetch --depth 1 origin "$ref"
     git -C "$dir" reset --hard FETCH_HEAD
   else
     rm -rf "$dir"
-    git clone --depth 1 "$url" "$dir"
+    git clone --depth 1 --branch "$ref" "$url" "$dir"
   fi
 }
 
 apt update
 apt full-upgrade -y
-apt install -y \
+
+COMMON_PACKAGES=(
   xfce4 xfce4-terminal dbus-x11 \
   tigervnc-standalone-server tigervnc-common \
   xauth x11-utils x11-xserver-utils \
   thunar gvfs file-roller p7zip-full unzip zip \
-  libreoffice libreoffice-l10n-zh-cn firefox-esr \
   fonts-noto-cjk fonts-noto-color-emoji \
   fcitx5 fcitx5-chinese-addons fcitx5-frontend-gtk3 fcitx5-frontend-qt5 \
   git curl wget ca-certificates python3 locales procps net-tools
+)
+
+OPTIONAL_PACKAGES=()
+case "$PROFILE" in
+  standard)
+    OPTIONAL_PACKAGES=(libreoffice libreoffice-l10n-zh-cn firefox-esr)
+    ;;
+  minimal)
+    OPTIONAL_PACKAGES=()
+    ;;
+  *)
+    echo "Unsupported profile inside Debian setup: $PROFILE" >&2
+    exit 2
+    ;;
+esac
+
+apt install -y "${COMMON_PACKAGES[@]}" "${OPTIONAL_PACKAGES[@]}"
 
 if grep -q '^# *zh_CN.UTF-8 UTF-8' /etc/locale.gen 2>/dev/null; then
   sed -i 's/^# *zh_CN.UTF-8 UTF-8/zh_CN.UTF-8 UTF-8/' /etc/locale.gen
@@ -71,9 +112,15 @@ update-locale LANG=zh_CN.UTF-8 LC_ALL=zh_CN.UTF-8 || true
 mkdir -p /opt /root/.config/autostart /root/.config/tigervnc /tmp/runtime-root
 chmod 700 /root/.config/tigervnc /tmp/runtime-root
 
-clone_or_update https://github.com/novnc/noVNC.git /opt/novnc
+clone_or_update https://github.com/novnc/noVNC.git /opt/novnc "$NOVNC_REF"
 mkdir -p /opt/novnc/utils
-clone_or_update https://github.com/novnc/websockify.git /opt/novnc/utils/websockify
+clone_or_update https://github.com/novnc/websockify.git /opt/novnc/utils/websockify "$WEBSOCKIFY_REF"
+
+cat > /opt/tablet-workdesk-component-versions.txt <<VERSIONS
+profile=$PROFILE
+novnc_ref=$NOVNC_REF
+websockify_ref=$WEBSOCKIFY_REF
+VERSIONS
 
 cat > /root/.config/autostart/light-locker.desktop <<'LOCKER'
 [Desktop Entry]
@@ -172,12 +219,14 @@ exec /opt/novnc/utils/websockify/run --web /opt/novnc 127.0.0.1:6080 127.0.0.1:5
 NOVNC_RUN
 chmod +x /usr/local/bin/tablet-workdesk-novnc-run
 
-cat > /usr/local/bin/tablet-workdesk-update-github <<'UPDATE_GH'
+cat > /usr/local/bin/tablet-workdesk-update-github <<UPDATE_GH
 #!/usr/bin/env bash
 set -euo pipefail
-git -C /opt/novnc fetch --depth 1 origin
+NOVNC_REF="$NOVNC_REF"
+WEBSOCKIFY_REF="$WEBSOCKIFY_REF"
+git -C /opt/novnc fetch --depth 1 origin "\$NOVNC_REF"
 git -C /opt/novnc reset --hard FETCH_HEAD
-git -C /opt/novnc/utils/websockify fetch --depth 1 origin
+git -C /opt/novnc/utils/websockify fetch --depth 1 origin "\$WEBSOCKIFY_REF"
 git -C /opt/novnc/utils/websockify reset --hard FETCH_HEAD
 UPDATE_GH
 chmod +x /usr/local/bin/tablet-workdesk-update-github
@@ -187,7 +236,12 @@ DEBIAN_SETUP
 chmod +x "$SHARE_DIR/tablet-workdesk-debian-setup.sh"
 
 log "Bootstrap Debian packages and official GitHub components"
-proot-distro login "$DEBIAN_NAME" --isolated --bind "$SHARE_DIR:/mnt/share" -- bash /mnt/share/tablet-workdesk-debian-setup.sh
+proot-distro login "$DEBIAN_NAME" --isolated --bind "$SHARE_DIR:/mnt/share" -- \
+  env \
+    TABLET_WORKDESK_PROFILE="$TABLET_WORKDESK_PROFILE" \
+    TABLET_WORKDESK_NOVNC_REF="$TABLET_WORKDESK_NOVNC_REF" \
+    TABLET_WORKDESK_WEBSOCKIFY_REF="$TABLET_WORKDESK_WEBSOCKIFY_REF" \
+    bash /mnt/share/tablet-workdesk-debian-setup.sh
 
 log "Clean old experiment wrappers"
 rm -f \
@@ -222,6 +276,7 @@ rm -f \
   "$PREFIX/bin/office-vnc" \
   "$PREFIX/bin/office-vnc-stop" \
   "$PREFIX/bin/office-vnc-status" \
+  "$PREFIX/bin/office-uninstall" \
   "$PREFIX/bin/vncoffice" \
   "$PREFIX/bin/stopvnc"
 
@@ -321,6 +376,66 @@ tail -60 "$HOME/tablet-workdesk/logs/office-novnc.log" 2>/dev/null || true
 echo
 echo "== debian logs =="
 proot-distro login debian --isolated -- bash -lc 'echo ---server---; tail -60 /root/.config/tigervnc/office-vnc.log 2>/dev/null || true; echo ---xstartup---; tail -60 /root/.config/tigervnc/xstartup.log 2>/dev/null || true'
+echo
+echo "== component versions =="
+proot-distro login debian --isolated -- bash -lc 'cat /opt/tablet-workdesk-component-versions.txt 2>/dev/null || true'
+EOF
+
+cat > "$APP_ROOT/office-uninstall.sh" <<'EOF'
+#!/data/data/com.termux/files/usr/bin/bash
+set -euo pipefail
+
+remove_rootfs=false
+case "${1:-}" in
+  "")
+    ;;
+  --remove-rootfs)
+    remove_rootfs=true
+    ;;
+  -h|--help)
+    cat <<'HELP'
+Usage:
+  office-uninstall
+  office-uninstall --remove-rootfs
+
+Without --remove-rootfs this removes Tablet Workdesk command wrappers and app
+state, but keeps the Debian proot rootfs.
+HELP
+    exit 0
+    ;;
+  *)
+    echo "Unknown option: $1" >&2
+    exit 2
+    ;;
+esac
+
+proot-distro login debian --isolated -- bash -lc 'pkill -f "websockify.*127.0.0.1:6080" >/dev/null 2>&1 || true; pkill -f "Xtigervnc :2|tablet-workdesk-vnc-run" >/dev/null 2>&1 || true; rm -f /tmp/.X2-lock /tmp/.X11-unix/X2' || true
+
+rm -f \
+  "$PREFIX/bin/office" \
+  "$PREFIX/bin/office-stop" \
+  "$PREFIX/bin/office-status" \
+  "$PREFIX/bin/office-vnc" \
+  "$PREFIX/bin/office-uninstall" \
+  "$PREFIX/bin/debian" \
+  "$PREFIX/bin/i" \
+  "$PREFIX/bin/s" \
+  "$PREFIX/bin/bakoffice" \
+  "$PREFIX/bin/upoffice"
+
+rm -rf "$HOME/tablet-workdesk"
+
+if [ "$remove_rootfs" = true ]; then
+  printf 'Type remove-debian to remove the Debian proot rootfs: '
+  read -r answer
+  if [ "$answer" = "remove-debian" ]; then
+    proot-distro remove debian
+  else
+    echo "Debian rootfs kept."
+  fi
+fi
+
+echo "Tablet Workdesk uninstalled."
 EOF
 
 cat > "$APP_ROOT/debian.sh" <<'EOF'
@@ -371,6 +486,7 @@ chmod +x \
   "$APP_ROOT/office-avnc.sh" \
   "$APP_ROOT/office-stop.sh" \
   "$APP_ROOT/office-status.sh" \
+  "$APP_ROOT/office-uninstall.sh" \
   "$APP_ROOT/debian.sh" \
   "$APP_ROOT/install-app.sh" \
   "$APP_ROOT/search-app.sh" \
@@ -382,6 +498,7 @@ for pair in \
   "office-stop office-stop.sh" \
   "office-status office-status.sh" \
   "office-vnc office-vnc.sh" \
+  "office-uninstall office-uninstall.sh" \
   "debian debian.sh" \
   "i install-app.sh" \
   "s search-app.sh" \
@@ -421,9 +538,14 @@ Other commands:
   s <keyword>
   bakoffice
   upoffice
+  office-uninstall
 
 Main path:
   AVNC opens local VNC session automatically.
+
+Install profiles:
+  standard: XFCE + office/browser packages
+  minimal: XFCE desktop without LibreOffice/Firefox ESR
 EOF
 
 rm -f \

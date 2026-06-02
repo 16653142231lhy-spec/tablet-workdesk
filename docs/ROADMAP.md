@@ -14,17 +14,18 @@ and focused on reliability.
 ## v0.2.x
 
 - Add a minimal install profile without LibreOffice or Firefox ESR.
+- Pin noVNC and websockify to reviewed upstream tags by default.
+- Add documented uninstall command.
+- Add release asset packaging for the Termux installer.
 - Add a tested low-RAM profile.
 - Add safer update and rollback behavior.
 - Add screenshots and short demo media.
-- Add a documented uninstall command.
 
 ## v0.3.x
 
-- Add pinned upstream component versions for reproducible installs.
 - Add device profile selection.
 - Add better diagnostics for VNC, noVNC, AVNC, locale, and input-method issues.
-- Add release asset packaging for the Termux installer.
+- Add hosted CI once the repository credential can create workflow files.
 
 ## Non-Goals
 

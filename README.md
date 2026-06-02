@@ -29,8 +29,11 @@ The current flow is:
 - Builds an XFCE desktop with Chinese locale and input support.
 - Adds LibreOffice, Firefox ESR, file tools, fonts, and common utilities.
 - Uses official noVNC and websockify sources from GitHub.
+- Pins noVNC and websockify to reviewed upstream tags by default.
+- Supports `standard` and `minimal` install profiles.
 - Provides simple commands: `office`, `office-stop`, `office-status`,
-  `office-vnc`, `debian`, `i`, `s`, `bakoffice`, and `upoffice`.
+  `office-vnc`, `office-uninstall`, `debian`, `i`, `s`, `bakoffice`, and
+  `upoffice`.
 - Keeps VNC and noVNC bound to localhost by default.
 
 ## Requirements
@@ -60,6 +63,12 @@ bash /sdcard/Download/tw.sh
 Manual copy also works: place `scripts/install-tablet-workdesk.sh` on the
 tablet as `/sdcard/Download/tw.sh`, then run the same Termux command above.
 
+Minimal install profile:
+
+```sh
+TABLET_WORKDESK_PROFILE=minimal bash /sdcard/Download/tw.sh
+```
+
 ## Daily Use
 
 Start the desktop:
@@ -84,6 +93,12 @@ Use direct VNC fallback:
 
 ```sh
 office-vnc
+```
+
+Uninstall wrappers and app state:
+
+```sh
+office-uninstall
 ```
 
 ## Repository Layout
@@ -121,10 +136,10 @@ Review the script before running it on a device that contains sensitive data.
 
 ## Roadmap
 
-- Add tested device profiles for low-RAM tablets.
+- Collect tested device profiles for low-RAM tablets.
 - Add a minimal install profile without LibreOffice.
 - Add screenshots and a short troubleshooting guide.
-- Add shell lint checks and safer update rollback.
+- Add safer update rollback.
 
 ## Maintenance
 
@@ -142,6 +157,12 @@ On Windows:
 
 ```powershell
 .\scripts\check-repo.ps1
+```
+
+Build release assets:
+
+```sh
+bash scripts/build-release-assets.sh
 ```
 
 ## Related Projects

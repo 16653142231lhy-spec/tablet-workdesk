@@ -19,6 +19,9 @@ cat ~/tablet-workdesk/logs/office-vnc.log
 cat ~/tablet-workdesk/logs/office-novnc.log
 ```
 
+`office-status` also prints pinned noVNC and websockify refs when the installer
+created `/opt/tablet-workdesk-component-versions.txt`.
+
 ## VNC Port Does Not Open
 
 Check whether port `5901` is listening:
@@ -77,3 +80,18 @@ When opening an issue, include:
 - Client app: AVNC, Chrome/noVNC, or another VNC viewer.
 - The command that failed.
 - The relevant log excerpt.
+
+## Need To Remove The Setup
+
+Remove command wrappers and app state:
+
+```sh
+office-uninstall
+```
+
+Remove command wrappers, app state, and then explicitly confirm Debian rootfs
+removal:
+
+```sh
+office-uninstall --remove-rootfs
+```

@@ -10,6 +10,8 @@ Tablet Workdesk 把 Android 平板变成一个轻量 Linux 办公/开发桌面�
 - 提供 `office` 这样的日常命令，尽量减少手动配置。
 - 默认使用 VNC/noVNC/AVNC 路线，避免部分设备上 Termux:X11 输入不稳定的问题。
 - 默认只监听本机 `127.0.0.1`，降低 VNC 暴露风险。
+- 默认 pin noVNC 和 websockify 的上游版本，减少“今天能装、明天坏掉”的问题。
+- 支持 `standard` 和 `minimal` 安装 profile。
 
 ## 安装
 
@@ -25,6 +27,12 @@ Tablet Workdesk 把 Android 平板变成一个轻量 Linux 办公/开发桌面�
 
 ```sh
 bash /sdcard/Download/tw.sh
+```
+
+低容量设备可以尝试最小安装：
+
+```sh
+TABLET_WORKDESK_PROFILE=minimal bash /sdcard/Download/tw.sh
 ```
 
 也可以手动把 `scripts/install-tablet-workdesk.sh` 放到平板的 `/sdcard/Download/tw.sh`，再运行同一条命令。
@@ -53,6 +61,12 @@ office-status
 
 ```sh
 office-vnc
+```
+
+卸载命令包装和应用状态：
+
+```sh
+office-uninstall
 ```
 
 ## 当前状态

@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.2.0 - 2026-06-02
+
+- Added `standard` and `minimal` install profiles.
+- Pinned noVNC to `v1.7.0` and websockify to `v0.13.0` by default.
+- Added component version manifest in the Debian proot environment.
+- Added `office-uninstall` with optional Debian rootfs removal confirmation.
+- Added release asset build scripts for `dist/tw.sh` and SHA256 checksum.
+- Updated install, architecture, troubleshooting, roadmap, and maintainer docs.
+
 ## v0.1.1 - 2026-06-02
 
 - Added Chinese README.
